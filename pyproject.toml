@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "limin-bench"
+version = "0.1.0"
+description = "A Python library for benchmarking and evaluating LLMs."
+authors = [
+    { name = "Titanom Solutions", email = "infrastructure@titanom.com" },
+]
+readme = "README.md"
+dependencies = [
+    "limin==0.6.0",
+    "limin-talk==0.1.0"
+]
+requires-python = ">=3.10"
+
+[tool.setuptools]
+packages = ["limin_bench"]
+
+[tool.setuptools.package-data]
+limin_bench = ["py.typed"]
+
+[tool.mypy]
+files = "limin_bench/"
