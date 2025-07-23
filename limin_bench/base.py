@@ -1,6 +1,5 @@
 from abc import ABC
 import json
-import math
 import statistics
 from typing import Callable, Generic, Literal, Type, TypeVar
 from limin import (
@@ -215,8 +214,8 @@ class ModelRun(BaseModel):
 
                 # Handle turn numbering
                 if message.role == "system":
-                    # System messages don't get a turn number
-                    turn_str = ""
+                    # System messages get turn number 0
+                    turn_str = "0"
                 elif message.role == "user":
                     # User messages start a new turn
                     current_turn += 1
@@ -383,8 +382,8 @@ class BinaryEvaluationRun(BaseModel):
                 row_values.append(row_display)
 
                 if message.role == "system":
-                    # System messages don't get a turn number
-                    turn_str = ""
+                    # System messages get turn number 0
+                    turn_str = "0"
                 elif message.role == "user":
                     # User messages start a new turn
                     current_turn += 1
@@ -541,8 +540,8 @@ class LikertEvaluationRun(BaseModel):
                 row_values.append(row_display)
 
                 if message.role == "system":
-                    # System messages don't get a turn number
-                    turn_str = ""
+                    # System messages get turn number 0
+                    turn_str = "0"
                 elif message.role == "user":
                     # User messages start a new turn
                     current_turn += 1
@@ -561,8 +560,8 @@ class LikertEvaluationRun(BaseModel):
                     explanation_values.append(
                         evaluation_run_row.results[0].explanation or ""
                     )
-                    score_values.append(str(math.round(evaluation_run_row.value(), 2)))
-                    instability_values.append(str(math.round(evaluation_run_row.instability, 2)))
+                    score_values.append(str(round(evaluation_run_row.value(), 2)))
+                    instability_values.append(str(round(evaluation_run_row.instability, 2)))
                 else:
                     explanation_values.append("")
                     score_values.append("")

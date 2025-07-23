@@ -1,4 +1,5 @@
 import asyncio
+from dotenv import load_dotenv
 from limin import ModelConfiguration
 from limin_bench import (
     BinaryJudge,
@@ -18,7 +19,7 @@ dataset = Dataset(
 assistant_system_prompt = """
 You are a helpful assistant.
 Answer the user's questions factually correctly.
-"""
+""".strip()
 
 judge_system_prompt = """
 You are an LLM as a judge.
@@ -26,7 +27,7 @@ You will be given a conversation between a user and an assistant.
 You will then judge whether the assistants answers are factually correct or not.
 Return 'true' if the answers are factually correct, and 'false' if they are not.
 You should also return a short one-sentence explanation for your judgement.
-"""
+""".strip()
 
 binary_judge = BinaryJudge(
     model_configuration=ModelConfiguration(model="gpt-4o"),
@@ -41,17 +42,18 @@ async def main():
         model_configuration=ModelConfiguration(model="gpt-4o"),
     )
     print("Full model run:")
-    print(model_run.model_dump_json())
+    print(model_run.to_markdown_table())
 
     evaluation_run = await generate_evaluation_run_binary(
         model_run=model_run, binary_judge=binary_judge, structured=True
     )
 
     print("Full evaluation run:")
-    print(evaluation_run.model_dump_json())
+    print(evaluation_run.to_markdown_table())
     print("Accuracy:")
     print(evaluation_run.accuracy)
 
 
 if __name__ == "__main__":
+    load_dotenv()
     asyncio.run(main())
