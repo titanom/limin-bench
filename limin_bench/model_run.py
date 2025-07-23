@@ -1,9 +1,21 @@
 import asyncio
 
-from limin import ModelConfiguration, generate_text_completion
+from limin import (
+    Conversation,
+    Message,
+    ModelConfiguration,
+    generate_text_completion,
+    generate_text_completion_for_conversation,
+)
 from limin_talk import Character, talk
 from tqdm import tqdm
-from .base import Dataset, ModelRun, ModelRunRow, get_conversation_from_prompts
+from .base import (
+    Dataset,
+    ModelRun,
+    ModelRunRow,
+    PregeneratedMultiTurnDataset,
+    get_conversation_from_prompts,
+)
 
 
 async def generate_model_run_row(
@@ -111,6 +123,67 @@ async def generate_multi_turn_model_run(
                 )
             )
             for text in dataset_batch
+        ]
+
+        model_run_rows_batch = await asyncio.gather(*tasks)
+        model_run_rows.extend(model_run_rows_batch)
+
+        if show_progress:
+            progress_bar.update(len(dataset_batch))
+
+    if show_progress:
+        progress_bar.close()
+
+    return ModelRun(rows=model_run_rows)
+
+
+async def generate_multi_turn_model_run_row_from_pregenerated_dataset(
+    pregenerated_user_messages: list[str],
+    assistant_system_prompt: str,
+    assistant_model_configuration: ModelConfiguration,
+) -> ModelRunRow:
+    conversation = Conversation(
+        messages=[Message(role="system", content=assistant_system_prompt)]
+    )
+
+    for user_message in pregenerated_user_messages:
+        conversation.add_message(Message(role="user", content=user_message))
+
+        assistant_message = await generate_text_completion_for_conversation(
+            conversation, assistant_model_configuration
+        )
+
+        conversation.add_message(
+            Message(role="assistant", content=assistant_message.content)
+        )
+
+    return ModelRunRow(content=conversation)
+
+
+async def generate_multi_turn_model_run_from_pregenerated_dataset(
+    dataset: PregeneratedMultiTurnDataset,
+    assistant_system_prompt: str,
+    assistant_model_configuration: ModelConfiguration,
+    n_parallel: int = 5,
+    show_progress: bool = True,
+) -> ModelRun:
+    model_run_rows = []
+
+    if show_progress:
+        progress_bar = tqdm(total=len(dataset), desc="Generating model run rows")
+
+    for i in range(0, len(dataset), n_parallel):
+        dataset_batch = dataset.rows[i : i + n_parallel]
+
+        tasks = [
+            asyncio.create_task(
+                generate_multi_turn_model_run_row_from_pregenerated_dataset(
+                    pregenerated_user_messages,
+                    assistant_system_prompt=assistant_system_prompt,
+                    assistant_model_configuration=assistant_model_configuration,
+                )
+            )
+            for pregenerated_user_messages in dataset_batch
         ]
 
         model_run_rows_batch = await asyncio.gather(*tasks)
