@@ -1,5 +1,6 @@
 from abc import ABC
 import json
+import math
 import statistics
 from typing import Callable, Generic, Literal, Type, TypeVar
 from limin import (
@@ -258,7 +259,6 @@ class BinaryEvaluationRunRow(BaseModel):
 
     results: list[BinaryEvaluationRunRowResult]
 
-    @property
     def value(self, method: Literal["mean", "min", "max"] = "mean") -> float:
         """
         The result of the evaluation run for the given row.
@@ -306,7 +306,7 @@ class BinaryEvaluationRun(BaseModel):
 
     @property
     def n_correct(self) -> int:
-        return len([row for row in self.rows if row.value >= 0.5])
+        return len([row for row in self.rows if row.value() >= 0.5])
 
     @property
     def n_incorrect(self) -> int:
@@ -314,7 +314,7 @@ class BinaryEvaluationRun(BaseModel):
 
     @property
     def accuracy(self) -> float:
-        return sum(row.value for row in self.rows) / len(self)
+        return sum(row.value() for row in self.rows) / len(self)
 
     def instability(self, method: Literal["mean", "max", "fus"] = "mean") -> float:
         """
@@ -403,7 +403,7 @@ class BinaryEvaluationRun(BaseModel):
                     explanation_values.append(
                         evaluation_run_row.results[0].explanation or ""
                     )
-                    value_values.append(str(evaluation_run_row.value))
+                    value_values.append(str(evaluation_run_row.value()))
                     instability_values.append(f"{evaluation_run_row.instability:.3f}")
                 else:
                     explanation_values.append("")
@@ -443,8 +443,7 @@ class LikertEvaluationRunRow(BaseModel):
 
     results: list[LikertEvaluationRunRowResult]
 
-    @property
-    def result(self, method: Literal["mean", "min", "max"] = "mean") -> float:
+    def value(self, method: Literal["mean", "min", "max"] = "mean") -> float:
         """
         The result of the evaluation run.
 
@@ -473,15 +472,15 @@ class LikertEvaluationRun(BaseModel):
 
     @property
     def min(self) -> float:
-        return min(row.result for row in self.rows)
+        return min(row.value() for row in self.rows)
 
     @property
     def max(self) -> float:
-        return max(row.result for row in self.rows)
+        return max(row.value() for row in self.rows)
 
     @property
     def avg(self) -> float:
-        return sum(row.result for row in self.rows) / len(self)
+        return sum(row.value() for row in self.rows) / len(self)
 
     def instability(self, method: Literal["mean", "max", "fus"] = "mean") -> float:
         return _instability([row.instability for row in self.rows], method)
@@ -562,8 +561,8 @@ class LikertEvaluationRun(BaseModel):
                     explanation_values.append(
                         evaluation_run_row.results[0].explanation or ""
                     )
-                    score_values.append(str(evaluation_run_row.result))
-                    instability_values.append(f"{evaluation_run_row.instability:.3f}")
+                    score_values.append(str(math.round(evaluation_run_row.value(), 2)))
+                    instability_values.append(str(math.round(evaluation_run_row.instability, 2)))
                 else:
                     explanation_values.append("")
                     score_values.append("")
