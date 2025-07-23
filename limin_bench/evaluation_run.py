@@ -8,6 +8,7 @@ from tqdm import tqdm
 from .base import (
     BinaryEvaluationRun,
     BinaryEvaluationRunRow,
+    BinaryEvaluationRunRowResult,
     BinaryJudge,
     ExplainedBinaryJudgement,
     ExplainedLikertJudgement,
@@ -20,40 +21,53 @@ from .base import (
 
 
 async def generate_evaluation_run_row_binary(
-    model_run_row: ModelRunRow, binary_judge: BinaryJudge, structured: bool = False
+    model_run_row: ModelRunRow, binary_judge: BinaryJudge, n_stability_runs: int = 1, structured: bool = False
 ) -> BinaryEvaluationRunRow:
-    conversation = model_run_row.content
-    text = conversation.to_markdown()
+    evaluation_run_rows: list[BinaryEvaluationRunRow] = []
 
-    if structured:
-        structured_response = await generate_structured_completion(
-            text,
-            response_model=ExplainedBinaryJudgement,
-            model_configuration=binary_judge.model_configuration,
-            system_prompt=binary_judge.system_prompt,
-        )
-        return BinaryEvaluationRunRow(
+    for _ in range(n_stability_runs):
+        results: list[BinaryEvaluationRunRowResult] = []
+
+        conversation = model_run_row.content
+        text = conversation.to_markdown()
+
+        if structured:
+            structured_response = await generate_structured_completion(
+                text,
+                response_model=ExplainedBinaryJudgement,
+                model_configuration=binary_judge.model_configuration,
+                system_prompt=binary_judge.system_prompt,
+            )
+
+            result = BinaryEvaluationRunRowResult(
+                judge_response=structured_response.content.explanation,
+                value=structured_response.content.result,
+                explanation=structured_response.content.explanation,
+            )
+            results.append(result)
+        else:
+            response = await generate_text_completion(
+                text,
+                model_configuration=binary_judge.model_configuration,
+                system_prompt=binary_judge.system_prompt,
+            )
+
+            if binary_judge.response_callback is None:
+                raise ValueError("Callback is required if structured is False")
+
+            result = binary_judge.response_callback(response.content)
+            results.append(BinaryEvaluationRunRowResult(
+                judge_response=response.content,
+                value=result,
+                explanation=None,
+            ))
+
+        evaluation_run_rows.append(BinaryEvaluationRunRow(
             conversation=conversation,
-            result=structured_response.content.result,
-            explanation=structured_response.content.explanation,
-            judge_response=structured_response.content.explanation,
-        )
-    else:
-        response = await generate_text_completion(
-            text,
-            model_configuration=binary_judge.model_configuration,
-            system_prompt=binary_judge.system_prompt,
-        )
+            results=results,
+        ))
 
-        if binary_judge.response_callback is None:
-            raise ValueError("Callback is required if structured is False")
-
-        result = binary_judge.response_callback(response.content)
-        return BinaryEvaluationRunRow(
-            conversation=conversation,
-            result=result,
-            judge_response=response.content,
-        )
+    return evaluation_run_rows
 
 
 async def generate_evaluation_run_binary(

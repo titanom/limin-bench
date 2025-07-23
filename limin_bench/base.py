@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import json
-from typing import Callable, Generic, Iterable, Type, TypeVar
+from typing import Callable, Generic, Iterable, Literal, Type, TypeVar
 from limin import (
     Conversation,
     Message,
@@ -82,11 +82,42 @@ class ModelRun(BaseModel):
         return iter(self.rows)
 
 
-class BinaryEvaluationRunRow(BaseModel):
-    conversation: Conversation
+class BinaryEvaluationRunRowResult(BaseModel):
     judge_response: str
-    result: bool
+    value: bool
     explanation: str | None = None
+
+class BinaryEvaluationRunRow(BaseModel):
+    """
+    A BinaryEvaluationRunRow represents an evaluation run over a single row of a model run.
+
+    The conversation is the conversation from the model run.
+    
+    The judge_responses, results, and explanations represent the results of the evaluation run.
+    Note that they are all lists in order to support "stability" runs, i.e. runs where we let the judge model evaluate the same conversation multiple times in order to check the stability of the evaluations.
+    """
+    conversation: Conversation
+
+    results: list[BinaryEvaluationRunRowResult]
+
+    @property
+    def result(self, method: Literal["mean", "min", "max"] = "mean") -> int:
+        """
+        The result of the evaluation run.
+
+        The method argument can be one of:
+        - "mean": The mean of the results (where 0 = False and 1 = True).
+        - "min": The minimum of the results (either 0 if there is a False result or 1 if all results are True).
+        - "max": The maximum of the results (either 1 if there is a True result or 0 if all results are False).
+        """
+        values = [result.value for result in self.results]
+
+        if method == "mean":
+            return sum(values) / len(values)
+        elif method == "min":
+            return 0 if False in values else 1
+        elif method == "max":
+            return 1 if True in values else 0
 
 
 class BinaryEvaluationRun(BaseModel):
@@ -94,7 +125,7 @@ class BinaryEvaluationRun(BaseModel):
 
     @property
     def n_correct(self) -> int:
-        return len([row for row in self.rows if row.result])
+        return len([row for row in self.rows if row.result >= 0.5])
 
     @property
     def n_incorrect(self) -> int:
@@ -102,7 +133,7 @@ class BinaryEvaluationRun(BaseModel):
 
     @property
     def accuracy(self) -> float:
-        return self.n_correct / len(self)
+        return sum(row.result for row in self.rows) / len(self)
 
     def to_json_file(self, file_path: str, indent: int = 4) -> None:
         with open(file_path, "w") as f:
