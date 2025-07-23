@@ -215,5 +215,137 @@
         "Now the constraint of not using extra data structure is removed, implement one with the best time complexity."
       ]
     ]
+  },
+  "extraction": {
+    "rows": [
+      [
+        "Evaluate the following movie reviews on a scale of 1 to 5, with 1 being very negative, 3 being neutral, and 5 being very positive:\n1. This movie released on Nov. 18, 2019, was phenomenal. The cinematography, the acting, the plot - everything was top-notch.\n2. Never before have I been so disappointed with a movie. The plot was predictable and the characters were one-dimensional. In my opinion, this movie is the worst one to have been released in 2022.\n3. The movie was okay. There were some parts I enjoyed, but there were also parts that felt lackluster. This is a movie that was released in Feb 2018 and seems to be quite ordinary. Return the answer as a JSON array of integers.",
+        "Update your previous reply by including the release date as part of the JSON content."
+      ],
+      [
+        "Given these categories - Literature, History, Science, and Art. Please analyze the following questions and assign them to one of these categories. In your response, refrain from uttering any extraneous words. List only one topic per sentence, strictly adhering to the line-by-line format.\n1.Discuss the main themes and stylistic techniques employed by Leo Tolstoy in ‘War and Peace.’ How do they align with the wider social context of 19th-century Russia?\n2. Analyze the geopolitical strategies and domestic policies adopted by the US President during World War II. How did these actions shape the post-war international order?\n3. Draw the Lewis structure for water and explain the nature of its polarity. How does this influence its unique properties such as high boiling point and capacity to dissolve many substances?\n4. Critically examine the artistic techniques and stylistic choices Leonardo da Vinci employed in ‘Mona Lisa.’ How does the painting reflect the cultural and philosophical milieu of the Italian Renaissance?",
+        "Amend your earlier answer by mentioning a person who is most relevant to each point."
+      ],
+      [
+        "Extract the following information from the presented texts: The name of the book, the author, the main character, the year of publication. Output in the format of “main character, book, author, year of publication”, one book per line. a) In the realm of wizarding literature, a true standout is the work of J.K. Rowling. One of her books that left an indelible mark is ‘Harry Potter and the Philosopher’s Stone’. This iconic tale, published in 1997, tells the story of Harry, a young orphan who discovers his magical abilities on his 11th birthday. Soon, he finds himself at the Hogwarts School of Witchcraft and Wizardry, a place teeming with magic and adventure, located somewhere in Scotland. b) The magic of Middle-earth has entranced readers worldwide, thanks to the brilliance of J.R.R. Tolkien. In one of his seminal works, ‘The Lord of the Rings: The Fellowship of the Ring’, published in 1954, we meet Frodo Baggins, a brave hobbit tasked with the perilous quest of destroying the One Ring. The epic journey takes him from the peaceful Shire to the tumultuous regions of Middle-earth. c) In a galaxy far, far away, the imagination of L.E. Starlighter gives us ‘The Prism Galaxy Chronicles: The Awakening of the Starcaster’. Published in 2028, the story is about Zylo, a humble spaceship mechanic, who unexpectedly discovers he’s a Starcaster - a rare individual with the power to manipulate stardust. Set against the backdrop of an interstellar empire in turmoil, Zylo’s destiny unfolds on numerous alien worlds, each with its unique cosmic charm.",
+        "Reformulate your earlier reply, output it in JSON format and only include books published after 1980."
+      ],
+      [
+        "Given the following data, identify the company with the highest profit in 2021 and provide its CEO’s name: a) Company X, with CEO Amy Williams, reported $30 billion in revenue and a $3 billion profit in 2021. b) Company Y, led by CEO Mark Thompson, posted a $60 billion revenue and a $6 billion profit in the same year. c) Company Z, under CEO Sarah Johnson, announced a $20 billion revenue and a $7 billion profit in 2021. d) Company W, managed by CEO James Smith, revealed a $300 billion revenue with a $21 billion profit in 2021. e) Company V, with CEO Lisa Brown, reported a $200 billion revenue and a $25 billion profit in 2021. f) Company U, under CEO John White, posted a $180 billion revenue and a $20 billion profit in the same year.",
+        "Which company had the highest profit margin (profit/revenue ratio))?"
+      ],
+      [
+        "Identify the countries, their capitals, and the languages spoken in the following sentences. Output in JSON format. a) Amidst the idyllic vistas, Copenhagen, Denmark’s capital, captivates visitors with its thriving art scene and the enchanting Danish language spoken by its inhabitants. b) Within the enchanting realm of Eldoria, one discovers Avalore, a grandiose city that emanates an ethereal aura. Lumina, a melodious language, serves as the principal mode of communication within this mystical abode. c) Nestled amidst a harmonious blend of age-old customs and contemporary wonders, Buenos Aires, the capital of Argentina, stands as a bustling metropolis. It is a vibrant hub where the expressive Spanish language holds sway over the city’s inhabitants.",
+        "Come up with 3 similar examples in the YAML format."
+      ],
+      [
+        "Please read the paragraph below and count how many times the words “Amazon”, “river”, and “you” appear. Please present the results in the format of “word, number of appearances” with each word on a separate line. Sort the lines in order of the number of appearances. The Amazon, a mesmerizing expanse of nature’s wonders, is home to the legendary Amazon River. Flowing through awe-inspiring landscapes like the Amazon rainforest, the river weaves its way through Brazil, Colombia, and Peru, giving life to countless creatures. From the mighty jaguars prowling the Amazon jungle to the vibrant macaws soaring above the canopy, this remarkable region teems with biodiversity. Deep within the river’s currents, magnificent pink river dolphins gracefully glide alongside piranhas and electric eels. Along the riverbanks, you’ll find bustling cities like Manaus, where the urban meets the wild, and Iquitos, a gateway to the heart of the Amazon rainforest. As you venture further, the Amazon River reveals hidden gems like the captivating Anavilhanas Archipelago, a mosaic of islands brimming with rare species. Embark on an adventure, explore the enchanting Amazon River, and immerse yourself in a world teeming with life and untamed beauty.",
+        "Please repeat the same task using the words ‘the’, ‘and’, and ‘to’"
+      ],
+      [
+        "Identify the named entities (people, organizations, locations) mentioned in the given news article. Please generate a JSON dictionary that lists the named entities in three separate groups based on their entity types. The key is the type of entity and the value is a list of strings.\nYesterday, Adamson Emerson, the CEO of Faraday, and Dieter Zetsche, the CEO of Daimler AG, announced plans to build a new Gigafactory in Berlin. The facility will be a joint venture between Faraday and Daimler, producing electric vehicles and battery packs for both companies, creating thousands of job opportunities in the region. Emerson and Zetsche stated that the strategic location of Berlin, coupled with its skilled workforce and strong infrastructure, makes it an ideal choice for expansion. The new Gigafactory aims to meet the growing demand for electric vehicles in Europe and contribute to a sustainable future. Volkswagen CEO Herbert Diess welcomed the news, saying greater collaboration will benefit the auto industry’s transition to e-mobility.",
+        "Now make the JSON object shorter by replacing each value with its first letter. Please output everything in a single line without using indentation or creating new lines."
+      ],
+      [
+        "Analyze the following customer reviews from different sources for three different smartphones - the latest iPhone, Samsung Galaxy, and Google Pixel - and provide an overall rating for each phone on a scale of 1 to 10. Consider the following complex and contradictory reviews:\nTechRadar’s review of the latest iPhone: The new iPhone is a stunning triumph of engineering that sets a new bar for smartphone performance and camera quality. However, the incremental design and high price mean it lacks the ‘wow’ factor of previous iPhones. Still, its power and intelligence are unrivaled.\nCNET’s review of the latest Samsung Galaxy: The Samsung Galaxy phone has plenty of high points, including an amazing screen, fast performance, solid battery life and an impressive array of camera options. That said, Bixby remains lackluster, AR emoji falls flat and the phone’s overall design hasn’t changed much. The new Galaxy is an amazing phone overall, but it has a few nagging weaknesses that keep it from achieving true greatness.\nThe Verge’s review of the latest Google Pixel: Google’s Pixel packs cutting-edge specs, innovative AI-powered software, and a killer camera into a sleek design. However, the phone has lackluster battery life, lacks expandable storage, and its performance stutters at times, especially considering its high price tag. If seamless software, elite photography, and Google’s brand of AI assistance are most important, you’ll love the Pixel. But the overall experience isn’t as well-rounded as some competitors. Return the answer as a JSON object with the overall ratings for each phone out of 10, to one decimal place.",
+        "Can you change the ratings from numbers to letters? Capital letters MUST be used when writing the names of phones."
+      ],
+      [
+        "Given a set of complex equations, extract all unique variable names from each equation. Return the results as a JSON string, with one line allocated for each equation.\n1) y = (3/4)x^3 - e^(2x) + sin(pi*x) - sqrt(7)\n2) 2A - B/(3+C) * sum(N=1 to 5; ln(N)^2) = 5D*integral(a=0 to pi; cos(comb(N=1 to 10; N*a)))\n3) E = m(c^2) + gamma*(v/d)/(-(alpha/2) + sqrt(beta^2 + (alpha/2)^2))",
+        "Please rearrange the equations and use ‘a’, ‘b’, ‘c’, ‘d’, etc. as variables."
+      ],
+      [
+        "Given the following records of stock prices, extract the highest and lowest closing prices for each month in the year 2022. Return the results as a CSV string, with one line allocated for each month. Date,Open,High,Low,Close,Volume 2022-01-01,150.02,155.28,148.50,153.80,15678900 2022-01-02,154.32,157.25,153.48,156.25,19874500 2022-02-01,160.50,163.28,159.50,161.80,14326700 2022-02-02,161.80,164.25,161.30,163.90,17689200 2022-03-01,165.40,168.35,163.10,166.80,16253400 2022-03-02,167.00,169.85,165.50,168.20,19568100",
+        "Do the same task again with the JSON format and round all numbers in your response to the nearest integers."
+      ]
+    ]
+  },
+  "stem": {
+    "rows": [
+      [
+        "In the field of quantum physics, what is superposition, and how does it relate to the phenomenon of quantum entanglement?",
+        "What assumptions have you made in your response? Are they valid?"
+      ],
+      [
+        "Consider a satellite that is in a circular orbit around the Earth. The speed of the satellite decreases. What will happen to the satellite’s orbital radius and period of revolution? Please justify your answer using principles of physics.",
+        "What are some corner cases or edge cases in your solution? How do you handle them?"
+      ],
+      [
+        "Photosynthesis is a vital process for life on Earth. Could you outline the two main stages of photosynthesis, including where they take place within the chloroplast, and the primary inputs and outputs for each stage?",
+        "How much energy can a tree produce through photosynthesis in its lifetime? Please provide an estimate using actual numerical values and thoroughly explain your thought process step-by-step."
+      ],
+      [
+        "What is the central dogma of molecular biology? What processes are involved? Who named this?",
+        "Identify and fix one incorrect fact in your previous response."
+      ],
+      [
+        "Describe the process and write out the balanced chemical equation for the reaction that occurs when solid calcium carbonate reacts with hydrochloric acid to form aqueous calcium chloride, carbon dioxide, and water. What type of reaction is this, and what observations might indicate that the reaction is taking place?",
+        "How can we reverse this process?"
+      ],
+      [
+        "Please explain the differences between exothermic and endothermic reactions, and include the criteria you used to distinguish between them. Additionally, please provide a real-world example to illustrate your explanation.",
+        "Can a process involve both reactions? List one."
+      ],
+      [
+        "The city of Vega intends to build a bridge that will span the Vegona River, covering a distance of 1.8 kilometers. The proposed location falls within a seismically active area that has experienced several high-magnitude earthquakes. Given these circumstances, what would be the best approach to constructing the bridge?",
+        "What are the key disadvantages or flaws of your solution? Please perform calculations and use numbers to illustrate them."
+      ],
+      [
+        "You have been tasked with designing a solar-powered water heating system for a residential building. Describe the key components and considerations you would include in your design. Design a five-step workflow.",
+        "If the system is intended for a building with a capacity of 100 individuals, what would be the estimated budget for implementing this system?"
+      ],
+      [
+        "Please describe the concept of machine learning. Could you elaborate on the differences between supervised, unsupervised, and reinforcement learning? Provide real-world examples of each.",
+        "In your last example of reinforcement learning, can we use supervised learning to solve it?"
+      ],
+      [
+        "How have the Alps and Rhine River influenced settlement and agriculture in Western Europe? List three impacts.",
+        "How could you design a concrete but simple experiment to validate the first impact?"
+      ]
+    ]
+  },
+  "humanities": {
+    "rows": [
+      [
+        "Provide insights into the correlation between economic indicators such as GDP, inflation, and unemployment rates. Explain how fiscal and monetary policies affect those indicators.",
+        "Now, explain them again like I’m five."
+      ],
+      [
+        "How do the stages of life shape our understanding of time and mortality?",
+        "Write an allegorical poem that illustrates the above."
+      ],
+      [
+        "Discuss antitrust laws and their impact on market competition. Compare the antitrust laws in US and China along with some case studies.",
+        "Pick one case study and explain it in detail."
+      ],
+      [
+        "Create a lesson plan that integrates drama, mime or theater techniques into a history class. Duration: 3 class periods (each lasts for 45 minutes) for 3 days Topic: Opium Wars between China and Britain Grade level: 9-10",
+        "Provide more details for Day 1 and include three homework questions."
+      ],
+      [
+        "Share ideas for adapting art masterpieces into interactive experiences for children. List 5 specific artworks and associated ideas.",
+        "Write a concrete plan for your second example. Include budget estimates."
+      ],
+      [
+        "Explain what’s base rate fallacy and list five specific examples of how politicians use it for campaigns.",
+        "Provide a detailed plan for an election campaign using the first example."
+      ],
+      [
+        "Describe five key principles in evaluating an argument in analytical writing.",
+        "With the listed principles, write a response in which you discuss what specific evidence is needed to evaluate the argument and explain how the evidence would weaken or strengthen the argument.\n===\nThe following is a memorandum from the advertising head of Zorblatt Animal Outlets, a chain operating thirty animal outlets globally.\n“Half a decade ago, our rival Aquatic Pavilion started publicizing in Rare Pets Digest periodical. Their overall sales have been consistently growing at a rate of 3-to-5 percent each year since then. In particular, the Aquatic Pavilion outlet in Harbor Town experienced even more significant growth, securing the title of the most frequented animal store in the United States the previous year. In contrast, our two Zorblatt outlets in Harbor Town have recorded a consistent drop in sales during the same duration. It is evident that we must promptly start featuring our own advertisements in Rare Pets Digest and other popular animal publications. If we take this step, we can confidently anticipate a reversal in this recent trend of decreasing sales and return to profitability.”"
+      ],
+      [
+        "Which methods did Socrates employ to challenge the prevailing thoughts of his time?",
+        "Let’s bring Socrates to modern world. Generate a conversation between Socrates and Bill Gates to debate on generative AI for education."
+      ],
+      [
+        "What are some business etiquette norms when doing business in Japan?",
+        "Create a video script for training new employees of a car wash business in Japan. Highlight the above etiquette norms."
+      ],
+      [
+        "Suggest five award-winning documentary films with brief background descriptions for aspiring filmmakers to study.",
+        "With the spirit in the first film, craft a succinct and persuasive pitch for a film about overcoming adversity."
+      ]
+    ]
   }
 }
