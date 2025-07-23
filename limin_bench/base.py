@@ -1,5 +1,6 @@
+from abc import ABC, abstractmethod
 import json
-from typing import Callable
+from typing import Callable, Generic, Iterable, Type, TypeVar
 from limin import (
     Conversation,
     Message,
@@ -7,27 +8,52 @@ from limin import (
 )
 from pydantic import BaseModel
 
+T = TypeVar("T")
+D = TypeVar("D", bound="BaseDataset")
 
-class Dataset(BaseModel):
-    rows: list[str]
+
+class BaseDataset(BaseModel, ABC, Generic[T]):
+    @property
+    @abstractmethod
+    def rows(self) -> list[T]:
+        pass
 
     def to_json_file(self, file_path: str, indent: int = 4) -> None:
         with open(file_path, "w") as f:
             json.dump(self.model_dump(), f, indent=indent)
 
     @classmethod
-    def from_json_file(cls, file_path: str) -> "Dataset":
+    def from_json_file(cls: Type[D], file_path: str) -> D:
         with open(file_path, "r") as f:
             return cls.model_validate(json.load(f))
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.rows)
 
-    def __getitem__(self, index: int) -> str:
+    def __getitem__(self, index: int) -> T:
         return self.rows[index]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterable[T]:
         return iter(self.rows)
+
+
+class PregeneratedMultiTurnDataset(BaseDataset):
+    """
+    A pregenerated multi-turn dataset is a list of rows, where every row is a list of strings indicating the pregenerated user messages to use during the multi-turn evaluation.
+    """
+
+    rows: list[list[str]]
+
+
+class Dataset(BaseDataset):
+    """
+    A dataset is a list of rows, where every row is a single string indicating the user message.
+
+    Note that you can still perform a multi-turn evaluation on a Dataset by providing a "user simulator" model configuration and system prompt which is responsible for generating additional user messages (after the initial user message).
+    If you want to perform multi-turn evaluation with pregenerated user messages, you need to use the PregeneratedMultiTurnDataset class.
+    """
+
+    rows: list[str]
 
 
 class ModelRunRow(BaseModel):
