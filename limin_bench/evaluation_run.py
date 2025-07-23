@@ -22,7 +22,10 @@ from .base import (
 
 
 async def generate_evaluation_run_row_binary(
-    model_run_row: ModelRunRow, binary_judge: BinaryJudge, n_stability_runs: int = 1, structured: bool = False
+    model_run_row: ModelRunRow,
+    binary_judge: BinaryJudge,
+    n_stability_runs: int = 1,
+    structured: bool = False,
 ) -> BinaryEvaluationRunRow:
     results: list[BinaryEvaluationRunRowResult] = []
 
@@ -56,11 +59,13 @@ async def generate_evaluation_run_row_binary(
                 raise ValueError("Callback is required if structured is False")
 
             value = binary_judge.response_callback(response.content)
-            results.append(BinaryEvaluationRunRowResult(
-                judge_response=response.content,
-                value=value,
-                explanation=None,
-            ))
+            results.append(
+                BinaryEvaluationRunRowResult(
+                    judge_response=response.content,
+                    value=value,
+                    explanation=None,
+                )
+            )
 
     return BinaryEvaluationRunRow(
         conversation=conversation,
@@ -91,7 +96,9 @@ async def generate_evaluation_run_binary(
 
         tasks = [
             asyncio.create_task(
-                generate_evaluation_run_row_binary(row, binary_judge, n_stability_runs, structured)
+                generate_evaluation_run_row_binary(
+                    row, binary_judge, n_stability_runs, structured
+                )
             )
             for row in batch
         ]
@@ -109,7 +116,10 @@ async def generate_evaluation_run_binary(
 
 
 async def generate_evaluation_run_row_likert(
-    model_run_row: ModelRunRow, likert_judge: LikertJudge, n_stability_runs: int = 1, structured: bool = False
+    model_run_row: ModelRunRow,
+    likert_judge: LikertJudge,
+    n_stability_runs: int = 1,
+    structured: bool = False,
 ) -> LikertEvaluationRunRow:
     results: list[LikertEvaluationRunRowResult] = []
 
@@ -143,11 +153,13 @@ async def generate_evaluation_run_row_likert(
                 raise ValueError("Callback is required if structured is False")
 
             value = likert_judge.callback(response.content)
-            results.append(LikertEvaluationRunRowResult(
-                judge_response=response.content,
-                value=value,
-                explanation=None,
-            ))
+            results.append(
+                LikertEvaluationRunRowResult(
+                    judge_response=response.content,
+                    value=value,
+                    explanation=None,
+                )
+            )
 
     return LikertEvaluationRunRow(
         conversation=conversation,
@@ -178,7 +190,9 @@ async def generate_evaluation_run_likert(
 
         tasks = [
             asyncio.create_task(
-                generate_evaluation_run_row_likert(row, likert_judge, n_stability_runs, structured)
+                generate_evaluation_run_row_likert(
+                    row, likert_judge, n_stability_runs, structured
+                )
             )
             for row in batch
         ]

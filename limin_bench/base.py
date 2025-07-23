@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 import json
 import statistics
 from typing import Callable, Generic, Iterable, Literal, Type, TypeVar
@@ -83,15 +83,17 @@ class BinaryEvaluationRunRowResult(BaseModel):
     value: bool
     explanation: str | None = None
 
+
 class BinaryEvaluationRunRow(BaseModel):
     """
     A BinaryEvaluationRunRow represents an evaluation run over a single row of a model run.
 
     The conversation is the conversation from the model run.
-    
+
     The judge_responses, results, and explanations represent the results of the evaluation run.
     Note that they are all lists in order to support "stability" runs, i.e. runs where we let the judge model evaluate the same conversation multiple times in order to check the stability of the evaluations.
     """
+
     conversation: Conversation
 
     results: list[BinaryEvaluationRunRowResult]
@@ -114,7 +116,7 @@ class BinaryEvaluationRunRow(BaseModel):
             return 0 if False in values else 1
         elif method == "max":
             return 1 if True in values else 0
-    
+
     @property
     def stability(self) -> float:
         """
@@ -125,13 +127,19 @@ class BinaryEvaluationRunRow(BaseModel):
         values = [int(result.value) for result in self.results]
         return statistics.stdev(values) if len(values) > 1 else 0.0
 
-def _stability(stabilities: list[float], method: Literal["mean", "max", "ffs"] = "mean") -> float:
+
+def _stability(
+    stabilities: list[float], method: Literal["mean", "max", "ffs"] = "mean"
+) -> float:
     if method == "mean":
         return sum(stabilities) / len(stabilities)
     elif method == "max":
         return max(stabilities)
     elif method == "ffs":
-        return sum(1 for stability in stabilities if stability == 0.0) / len(stabilities)
+        return sum(1 for stability in stabilities if stability == 0.0) / len(
+            stabilities
+        )
+
 
 class BinaryEvaluationRun(BaseModel):
     rows: list[BinaryEvaluationRunRow]
@@ -147,7 +155,7 @@ class BinaryEvaluationRun(BaseModel):
     @property
     def accuracy(self) -> float:
         return sum(row.value for row in self.rows) / len(self)
-    
+
     @property
     def stability(self, method: Literal["mean", "max", "ffs"] = "mean") -> float:
         """
@@ -190,10 +198,11 @@ class LikertEvaluationRunRow(BaseModel):
     A LikertEvaluationRunRow represents an evaluation run over a single row of a model run.
 
     The conversation is the conversation from the model run.
-    
+
     The results represent the results of the evaluation run.
     Note that they are a list in order to support "stability" runs, i.e. runs where we let the judge model evaluate the same conversation multiple times in order to check the stability of the evaluations.
     """
+
     conversation: Conversation
 
     results: list[LikertEvaluationRunRowResult]
@@ -216,7 +225,7 @@ class LikertEvaluationRunRow(BaseModel):
             return min(values)
         elif method == "max":
             return max(values)
-        
+
     @property
     def stability(self) -> float:
         values = [result.value for result in self.results]
@@ -237,7 +246,7 @@ class LikertEvaluationRun(BaseModel):
     @property
     def avg(self) -> float:
         return sum(row.result for row in self.rows) / len(self)
-    
+
     @property
     def stability(self, method: Literal["mean", "max", "ffs"] = "mean") -> float:
         return _stability([row.stability for row in self.rows], method)
