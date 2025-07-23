@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "limin-bench"
-version = "0.2.0"
+version = "0.2.1"
 description = "A Python library for benchmarking and evaluating LLMs."
 authors = [
     { name = "Titanom Solutions", email = "infrastructure@titanom.com" },
@@ -20,7 +20,7 @@ requires-python = ">=3.10"
 packages = ["limin_bench"]
 
 [tool.setuptools.package-data]
-limin_bench = ["py.typed"]
+limin_bench = ["py.typed", "data/*.json"]
 
 [tool.mypy]
 files = "limin_bench/"
