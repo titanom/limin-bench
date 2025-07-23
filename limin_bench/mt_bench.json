@@ -130,5 +130,90 @@
         "If the aides confront the group of girls from situation © and they deny bullying, stating that they were merely playing a game, what specific evidence should the aides look for to determine if this is a likely truth or a cover-up for bullying?"
       ]
     ]
+  },
+  "math": {
+    "rows": [
+      [
+        "The vertices of a triangle are at points (0, 0), (-1, 1), and (3, 3). What is the area of the triangle?",
+        "What’s area of the circle circumscribing the triangle?"
+      ],
+      [
+        "A tech startup invests $8000 in software development in the first year, and then invests half of that amount in software development in the second year. What’s the total amount the startup invested in software development over the two years?",
+        "If the startup maintains the same strategy for the third year, investing half of the previous year’s amount into software development, how much will they invest in the third year?"
+      ],
+      [
+        "In a survey conducted at a local high school, preferences for a new school color were measured: 58% of students liked the color blue, 45% preferred green, and 22% liked both colors. If we randomly pick a student from the school, what’s the probability that they would like neither blue nor green?",
+        "If we select a student liked green, what’s the probability that he or she would dislike both colors?"
+      ],
+      [
+        "When rolling two dice, what is the probability that you roll a total number that is at least 3?",
+        "Continue from previous question. What’s the probability that you roll a number which is even or at least 3?"
+      ],
+      [
+        "Some people got on a bus at the terminal. At the first bus stop, half of the people got down and 4 more people got in. Then at the second bus stop, 6 people got down and 8 more got in. If there were a total of 25 people heading to the third stop, how many people got on the bus at the terminal?",
+        "If the ticket is $2 per person, how much is the total money earned by the bus?"
+      ],
+      ["x+y = 4z, x*y = 4z^2, express x-y in z", "Express z-x in y"],
+      [
+        "How many integers are in the solution of the inequality |x + 5| < 10",
+        "What about |x + 10| < 5"
+      ],
+      [
+        "When a number is divided by 10, the remainder is 4. What is the remainder when twice the number is divided by 4?",
+        "What about when twice the number is divided by 5?"
+      ],
+      [
+        "Benjamin went to a bookstore and purchased a variety of books. He bought 5 copies of a sci-fi novel, each priced at $20, 3 copies of a history book priced at $30 each, and 2 copies of a philosophy book for $45 each. What was the total cost of his purchases?",
+        "Suppose Benjamin decides to sell each of these books at a 25% markup from the price he purchased them. What would be his total revenue if he sold all the books he bought?"
+      ],
+      [
+        "Given that f(x) = 4x^3 - 9x - 14, find the value of f(2).",
+        "Find x such that f(x) = 0."
+      ]
+    ]
+  },
+  "coding": {
+    "rows": [
+      [
+        "Develop a Python program that reads all the text files under a directory and returns top-5 words with the most number of occurrences.",
+        "Can you parallelize it?"
+      ],
+      [
+        "Write a C++ program to find the nth Fibonacci number using recursion.",
+        "Now we define a sequence of numbers in which each number is the sum of the three preceding ones. The first three numbers are 0, -1, -1. Write a program to find the nth number."
+      ],
+      [
+        "Write a simple website in HTML. When a user clicks the button, it shows a random joke from a list of 4 jokes.",
+        "How to use CSS to change the color of jokes to red?"
+      ],
+      [
+        "Here is a Python function to find the length of the longest common subsequence of two input strings. Can you identify any bug in this function?",
+        "what about this one?"
+      ],
+      [
+        "Write a function to find the highest common ancestor (not LCA) of two nodes in a binary tree.",
+        "What if it is not a binary tree?"
+      ],
+      [
+        "Implement a function to find the median of two sorted arrays of different sizes with O(1) space complexity and O(n) time complexity.",
+        "Does there exist an implementation with better time complexity?"
+      ],
+      [
+        "Write a function to find the majority element in a given integer array using the Boyer-Moore Voting Algorithm.",
+        "How about finding the top-2 most occurring elements?"
+      ],
+      [
+        "A binary tree is full if all of its vertices have either zero or two children. Let B_n denote the number of full binary trees with n vertices. Implement a function to find B_n.",
+        "What if the problem changed from a binary tree to a ternary tree?"
+      ],
+      [
+        "You are given two sorted lists of size m and n. Implement a function to find the kth smallest element in the union of the two lists with linear complexity.",
+        "Does there exist an algorithm with better time complexity? If so, implement it."
+      ],
+      [
+        "Implement a program to find the common elements in two arrays without using any extra data structures.",
+        "Now the constraint of not using extra data structure is removed, implement one with the best time complexity."
+      ]
+    ]
   }
 }
