@@ -24,3 +24,6 @@ limin_bench = ["py.typed", "data/*.json"]
 
 [tool.mypy]
 files = "limin_bench/"
+
+[tool.ruff]
+extend-exclude = ["**/*.ipynb"]
