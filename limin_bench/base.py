@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import json
+import statistics
 from typing import Callable, Generic, Iterable, Literal, Type, TypeVar
 from limin import (
     Conversation,
@@ -96,9 +97,9 @@ class BinaryEvaluationRunRow(BaseModel):
     results: list[BinaryEvaluationRunRowResult]
 
     @property
-    def result(self, method: Literal["mean", "min", "max"] = "mean") -> int:
+    def value(self, method: Literal["mean", "min", "max"] = "mean") -> int:
         """
-        The result of the evaluation run.
+        The result of the evaluation run for the given row.
 
         The method argument can be one of:
         - "mean": The mean of the results (where 0 = False and 1 = True).
@@ -113,14 +114,31 @@ class BinaryEvaluationRunRow(BaseModel):
             return 0 if False in values else 1
         elif method == "max":
             return 1 if True in values else 0
+    
+    @property
+    def stability(self) -> float:
+        """
+        The stability of the evaluation run for the given row.
 
+        This is defined as the standard deviation of the results.
+        """
+        values = [int(result.value) for result in self.results]
+        return statistics.stdev(values) if len(values) > 1 else 0.0
+
+def _stability(stabilities: list[float], method: Literal["mean", "max", "ffs"] = "mean") -> float:
+    if method == "mean":
+        return sum(stabilities) / len(stabilities)
+    elif method == "max":
+        return max(stabilities)
+    elif method == "ffs":
+        return sum(1 for stability in stabilities if stability == 0.0) / len(stabilities)
 
 class BinaryEvaluationRun(BaseModel):
     rows: list[BinaryEvaluationRunRow]
 
     @property
     def n_correct(self) -> int:
-        return len([row for row in self.rows if row.result >= 0.5])
+        return len([row for row in self.rows if row.value >= 0.5])
 
     @property
     def n_incorrect(self) -> int:
@@ -128,7 +146,19 @@ class BinaryEvaluationRun(BaseModel):
 
     @property
     def accuracy(self) -> float:
-        return sum(row.result for row in self.rows) / len(self)
+        return sum(row.value for row in self.rows) / len(self)
+    
+    @property
+    def stability(self, method: Literal["mean", "max", "ffs"] = "mean") -> float:
+        """
+        The stability of the evaluation run.
+
+        The method argument can be one of:
+        - "mean": The mean of the stability of the rows.
+        - "max": The maximum of the stability of the rows.
+        - "ffs": The fraction of fully stable rows.
+        """
+        return _stability([row.stability for row in self.rows], method)
 
     def to_json_file(self, file_path: str, indent: int = 4) -> None:
         with open(file_path, "w") as f:
@@ -186,6 +216,11 @@ class LikertEvaluationRunRow(BaseModel):
             return min(values)
         elif method == "max":
             return max(values)
+        
+    @property
+    def stability(self) -> float:
+        values = [result.value for result in self.results]
+        return statistics.stdev(values) if len(values) > 1 else 0.0
 
 
 class LikertEvaluationRun(BaseModel):
@@ -202,6 +237,10 @@ class LikertEvaluationRun(BaseModel):
     @property
     def avg(self) -> float:
         return sum(row.result for row in self.rows) / len(self)
+    
+    @property
+    def stability(self, method: Literal["mean", "max", "ffs"] = "mean") -> float:
+        return _stability([row.stability for row in self.rows], method)
 
     def to_json_file(self, file_path: str, indent: int = 4) -> None:
         with open(file_path, "w") as f:
