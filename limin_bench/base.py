@@ -131,14 +131,14 @@ class BinaryEvaluationRunRow(BaseModel):
 
 
 def _instability(
-    instabilities: list[float], method: Literal["mean", "max", "ffs"] = "mean"
+    instabilities: list[float], method: Literal["mean", "max", "fus"] = "mean"
 ) -> float:
     if method == "mean":
         return sum(instabilities) / len(instabilities)
     elif method == "max":
         return max(instabilities)
-    elif method == "ffs":
-        return sum(1 for instability in instabilities if instability == 0.0) / len(
+    elif method == "fus":
+        return sum(1 for instability in instabilities if instability > 0.0) / len(
             instabilities
         )
 
@@ -158,15 +158,14 @@ class BinaryEvaluationRun(BaseModel):
     def accuracy(self) -> float:
         return sum(row.value for row in self.rows) / len(self)
 
-    @property
-    def instability(self, method: Literal["mean", "max", "ffs"] = "mean") -> float:
+    def instability(self, method: Literal["mean", "max", "fus"] = "mean") -> float:
         """
         The instability of the evaluation run.
 
         The method argument can be one of:
         - "mean": The mean of the instability of the rows.
         - "max": The maximum of the instability of the rows.
-        - "ffs": The fraction of fully stable rows.
+        - "fus": The fraction of unstable rows.
         """
         return _instability([row.instability for row in self.rows], method)
 
@@ -249,8 +248,7 @@ class LikertEvaluationRun(BaseModel):
     def avg(self) -> float:
         return sum(row.result for row in self.rows) / len(self)
 
-    @property
-    def instability(self, method: Literal["mean", "max", "ffs"] = "mean") -> float:
+    def instability(self, method: Literal["mean", "max", "fus"] = "mean") -> float:
         return _instability([row.instability for row in self.rows], method)
 
     def to_json_file(self, file_path: str, indent: int = 4) -> None:
