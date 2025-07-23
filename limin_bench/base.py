@@ -1,7 +1,7 @@
 from abc import ABC
 import json
 import statistics
-from typing import Callable, Generic, Iterable, Literal, Type, TypeVar
+from typing import Callable, Generic, Literal, Type, TypeVar
 from limin import (
     Conversation,
     Message,
@@ -35,12 +35,104 @@ class BaseDataset(BaseModel, ABC, Generic[T]):
         return iter(self.rows)
 
 
+def dict_to_markdown_table(
+    data: dict[str, list[str]], max_column_length: int = 50
+) -> str:
+    """
+    Convert a dictionary of column names to column values into a markdown table.
+
+    Args:
+        data: Dictionary where keys are column names and values are lists of cell values
+        max_column_length: Maximum length of cell content before truncation
+
+    Returns:
+        A markdown table as a string
+    """
+    if not data or not any(data.values()):
+        headers = list(data.keys()) if data else []
+        header_row = "| " + " | ".join(headers) + " |"
+        separator = "|" + "|".join(["-" * (len(h) + 2) for h in headers]) + "|"
+        return header_row + "\n" + separator
+
+    columns = list(data.keys())
+
+    processed_data = {}
+    for col_name, col_values in data.items():
+        processed_values = []
+        for value in col_values:
+            # Escape pipe characters and replace newlines to avoid breaking the table
+            escaped_value = str(value).replace("|", "\\|").replace("\n", " ")
+
+            if len(escaped_value) > max_column_length:
+                escaped_value = escaped_value[: max_column_length - 3] + "..."
+            processed_values.append(escaped_value)
+        processed_data[col_name] = processed_values
+
+    col_widths = {}
+    for col_name in columns:
+        col_widths[col_name] = max(
+            len(col_name),
+            max(len(value) for value in processed_data[col_name])
+            if processed_data[col_name]
+            else 0,
+        )
+
+    header = (
+        "| "
+        + " | ".join(col_name.ljust(col_widths[col_name]) for col_name in columns)
+        + " |"
+    )
+    separator = (
+        "|" + "|".join("-" * (col_widths[col_name] + 2) for col_name in columns) + "|"
+    )
+
+    lines = [header, separator]
+
+    num_rows = len(processed_data[columns[0]]) if columns else 0
+    for row_idx in range(num_rows):
+        row_values = [
+            processed_data[col_name][row_idx].ljust(col_widths[col_name])
+            for col_name in columns
+        ]
+        line = "| " + " | ".join(row_values) + " |"
+        lines.append(line)
+
+    return "\n".join(lines)
+
+
 class PregeneratedMultiTurnDataset(BaseDataset[list[str]]):
     """
     A pregenerated multi-turn dataset is a list of rows, where every row is a list of strings indicating the pregenerated user messages to use during the multi-turn evaluation.
     """
 
     rows: list[list[str]]
+
+    def to_markdown_table(self, max_column_length: int = 50) -> str:
+        """
+        Returns a markdown table representation of the pregenerated multi-turn dataset.
+        Each row shows the turn number and the corresponding user message.
+        """
+        if not self.rows:
+            return dict_to_markdown_table(
+                {"Row": [], "Turn": [], "Message": []}, max_column_length
+            )
+
+        # Collect all data
+        row_values = []
+        turn_values = []
+        message_values = []
+
+        for row_idx, row in enumerate(self.rows):
+            for turn_idx, message in enumerate(row):
+                # Only show row number for the first turn of each row
+                row_display = str(row_idx) if turn_idx == 0 else ""
+                row_values.append(row_display)
+                turn_values.append(str(turn_idx + 1))
+                message_values.append(message)
+
+        data = {"Row": row_values, "Turn": turn_values, "Message": message_values}
+
+        return dict_to_markdown_table(data, max_column_length)
 
 
 class Dataset(BaseDataset[str]):
@@ -52,6 +144,22 @@ class Dataset(BaseDataset[str]):
     """
 
     rows: list[str]
+
+    def to_markdown_table(self, max_column_length: int = 50) -> str:
+        """
+        Returns a markdown table representation of the dataset.
+        Each row shows the row number and the corresponding user message.
+        """
+        if not self.rows:
+            return dict_to_markdown_table({"Row": [], "Message": []}, max_column_length)
+
+        # Collect all data
+        row_values = [str(row_idx) for row_idx in range(len(self.rows))]
+        message_values = list(self.rows)
+
+        data = {"Row": row_values, "Message": message_values}
+
+        return dict_to_markdown_table(data, max_column_length)
 
 
 class ModelRunRow(BaseModel):
@@ -78,6 +186,56 @@ class ModelRun(BaseModel):
 
     def __iter__(self):
         return iter(self.rows)
+
+    def to_markdown_table(self, max_trunc: int = 50) -> str:
+        """
+        Returns a markdown table representation of the model run.
+        Each row shows the row number, turn, role, and message content.
+        """
+        if not self.rows:
+            return dict_to_markdown_table(
+                {"Row": [], "Turn": [], "Role": [], "Message": []}, max_trunc
+            )
+
+        # Collect all data
+        row_values = []
+        turn_values = []
+        role_values = []
+        message_values = []
+
+        for row_idx, model_run_row in enumerate(self.rows):
+            conversation = model_run_row.content
+            current_turn = 0
+
+            for message_idx, message in enumerate(conversation.messages):
+                # Only show row number for the first message of each row
+                row_display = str(row_idx) if message_idx == 0 else ""
+                row_values.append(row_display)
+
+                # Handle turn numbering
+                if message.role == "system":
+                    # System messages don't get a turn number
+                    turn_str = ""
+                elif message.role == "user":
+                    # User messages start a new turn
+                    current_turn += 1
+                    turn_str = str(current_turn)
+                else:
+                    # Assistant messages continue the current turn (no turn number shown)
+                    turn_str = ""
+
+                turn_values.append(turn_str)
+                role_values.append(message.role)
+                message_values.append(message.content)
+
+        data = {
+            "Row": row_values,
+            "Turn": turn_values,
+            "Role": role_values,
+            "Message": message_values,
+        }
+
+        return dict_to_markdown_table(data, max_trunc)
 
 
 class BinaryEvaluationRunRowResult(BaseModel):
@@ -187,6 +345,83 @@ class BinaryEvaluationRun(BaseModel):
     def __iter__(self):
         return iter(self.rows)
 
+    def to_markdown_table(self, max_trunc: int = 50) -> str:
+        """
+        Returns a markdown table representation of the Binary evaluation run.
+        Each row shows the row number, turn, role, message content, evaluation explanation, evaluation value, and instability.
+        The evaluation explanation, value, and instability are only shown after the last message of each row.
+        """
+        if not self.rows:
+            return dict_to_markdown_table(
+                {
+                    "Row": [],
+                    "Turn": [],
+                    "Role": [],
+                    "Message": [],
+                    "Explanation": [],
+                    "Value": [],
+                    "Instability": [],
+                },
+                max_trunc,
+            )
+
+        row_values = []
+        turn_values = []
+        role_values = []
+        message_values = []
+        explanation_values = []
+        value_values = []
+        instability_values = []
+
+        for row_idx, evaluation_run_row in enumerate(self.rows):
+            conversation = evaluation_run_row.conversation
+            current_turn = 0
+
+            for message_idx, message in enumerate(conversation.messages):
+                # Only show row number for the first message of each row
+                row_display = str(row_idx) if message_idx == 0 else ""
+                row_values.append(row_display)
+
+                if message.role == "system":
+                    # System messages don't get a turn number
+                    turn_str = ""
+                elif message.role == "user":
+                    # User messages start a new turn
+                    current_turn += 1
+                    turn_str = str(current_turn)
+                else:
+                    # Assistant messages continue the current turn (no turn number shown)
+                    turn_str = ""
+
+                turn_values.append(turn_str)
+                role_values.append(message.role)
+                message_values.append(message.content)
+
+                # Only show evaluation result after the last message of each row
+                if message_idx == len(conversation.messages) - 1:
+                    # We only show the first explanation
+                    explanation_values.append(
+                        evaluation_run_row.results[0].explanation or ""
+                    )
+                    value_values.append(str(evaluation_run_row.value))
+                    instability_values.append(f"{evaluation_run_row.instability:.3f}")
+                else:
+                    explanation_values.append("")
+                    value_values.append("")
+                    instability_values.append("")
+
+        data = {
+            "Row": row_values,
+            "Turn": turn_values,
+            "Role": role_values,
+            "Message": message_values,
+            "Explanation": explanation_values,
+            "Value": value_values,
+            "Instability": instability_values,
+        }
+
+        return dict_to_markdown_table(data, max_trunc)
+
 
 class LikertEvaluationRunRowResult(BaseModel):
     judge_response: str
@@ -268,6 +503,83 @@ class LikertEvaluationRun(BaseModel):
 
     def __iter__(self):
         return iter(self.rows)
+
+    def to_markdown_table(self, max_trunc: int = 50) -> str:
+        """
+        Returns a markdown table representation of the Likert evaluation run.
+        Each row shows the row number, turn, role, message content, evaluation explanation, evaluation score, and stability.
+        The evaluation explanation, score, and stability are only shown after the last message of each row.
+        """
+        if not self.rows:
+            return dict_to_markdown_table(
+                {
+                    "Row": [],
+                    "Turn": [],
+                    "Role": [],
+                    "Message": [],
+                    "Explanation": [],
+                    "Score": [],
+                    "Instability": [],
+                },
+                max_trunc,
+            )
+
+        row_values = []
+        turn_values = []
+        role_values = []
+        message_values = []
+        explanation_values = []
+        score_values = []
+        instability_values = []
+
+        for row_idx, evaluation_run_row in enumerate(self.rows):
+            conversation = evaluation_run_row.conversation
+            current_turn = 0
+
+            for message_idx, message in enumerate(conversation.messages):
+                # Only show row number for the first message of each row
+                row_display = str(row_idx) if message_idx == 0 else ""
+                row_values.append(row_display)
+
+                if message.role == "system":
+                    # System messages don't get a turn number
+                    turn_str = ""
+                elif message.role == "user":
+                    # User messages start a new turn
+                    current_turn += 1
+                    turn_str = str(current_turn)
+                else:
+                    # Assistant messages continue the current turn (no turn number shown)
+                    turn_str = ""
+
+                turn_values.append(turn_str)
+                role_values.append(message.role)
+                message_values.append(message.content)
+
+                # Only show evaluation result after the last message of each row
+                if message_idx == len(conversation.messages) - 1:
+                    # We only show the first explanation
+                    explanation_values.append(
+                        evaluation_run_row.results[0].explanation or ""
+                    )
+                    score_values.append(str(evaluation_run_row.result))
+                    instability_values.append(f"{evaluation_run_row.instability:.3f}")
+                else:
+                    explanation_values.append("")
+                    score_values.append("")
+                    instability_values.append("")
+
+        data = {
+            "Row": row_values,
+            "Turn": turn_values,
+            "Role": role_values,
+            "Message": message_values,
+            "Explanation": explanation_values,
+            "Score": score_values,
+            "Instability": instability_values,
+        }
+
+        return dict_to_markdown_table(data, max_trunc)
 
 
 # Note that explanation should be serialized before result (so that the explanation comes first and the result second).

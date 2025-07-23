@@ -8,6 +8,7 @@ from .base import (
     LikertEvaluationRun,
     LikertEvaluationRunRow,
 )
+from .datasets import load_mt_bench
 from .evaluation_run import (
     BinaryJudge,
     LikertJudge,
@@ -33,6 +34,8 @@ __all__ = [
     "BinaryEvaluationRunRow",
     "LikertEvaluationRun",
     "LikertEvaluationRunRow",
+    # From datasets
+    "load_mt_bench",
     # From evaluation_run
     "BinaryJudge",
     "LikertJudge",
