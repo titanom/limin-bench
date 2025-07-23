@@ -1,5 +1,6 @@
 from .base import (
     Dataset,
+    PregeneratedMultiTurnDataset,
     ModelRunRow,
     ModelRun,
     BinaryEvaluationRun,
@@ -18,11 +19,14 @@ from .model_run import (
     generate_model_run,
     generate_multi_turn_model_run_row,
     generate_multi_turn_model_run,
+    generate_multi_turn_model_run_row_from_pregenerated_dataset,
+    generate_multi_turn_model_run_from_pregenerated_dataset,
 )
 
 __all__ = [
     # From base
     "Dataset",
+    "PregeneratedMultiTurnDataset",
     "ModelRunRow",
     "ModelRun",
     "BinaryEvaluationRun",
@@ -39,4 +43,6 @@ __all__ = [
     "generate_model_run",
     "generate_multi_turn_model_run_row",
     "generate_multi_turn_model_run",
+    "generate_multi_turn_model_run_row_from_pregenerated_dataset",
+    "generate_multi_turn_model_run_from_pregenerated_dataset",
 ]

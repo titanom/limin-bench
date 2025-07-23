@@ -164,17 +164,35 @@ async def generate_multi_turn_model_run_from_pregenerated_dataset(
     dataset: PregeneratedMultiTurnDataset,
     assistant_system_prompt: str,
     assistant_model_configuration: ModelConfiguration,
+    n_parallel: int = 5,
+    show_progress: bool = True,
 ) -> ModelRun:
     model_run_rows = []
 
-    for pregenerated_user_messages in dataset.rows:
-        model_run_row = (
-            await generate_multi_turn_model_run_row_from_pregenerated_dataset(
-                pregenerated_user_messages,
-                assistant_system_prompt,
-                assistant_model_configuration,
+    if show_progress:
+        progress_bar = tqdm(total=len(dataset), desc="Generating model run rows")
+
+    for i in range(0, len(dataset), n_parallel):
+        dataset_batch = dataset.rows[i : i + n_parallel]
+
+        tasks = [
+            asyncio.create_task(
+                generate_multi_turn_model_run_row_from_pregenerated_dataset(
+                    pregenerated_user_messages,
+                    assistant_system_prompt=assistant_system_prompt,
+                    assistant_model_configuration=assistant_model_configuration,
+                )
             )
-        )
-        model_run_rows.append(model_run_row)
+            for pregenerated_user_messages in dataset_batch
+        ]
+
+        model_run_rows_batch = await asyncio.gather(*tasks)
+        model_run_rows.extend(model_run_rows_batch)
+
+        if show_progress:
+            progress_bar.update(len(dataset_batch))
+
+    if show_progress:
+        progress_bar.close()
 
     return ModelRun(rows=model_run_rows)

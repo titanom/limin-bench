@@ -91,7 +91,7 @@ class BinaryEvaluationRunRow(BaseModel):
     The conversation is the conversation from the model run.
 
     The judge_responses, results, and explanations represent the results of the evaluation run.
-    Note that they are all lists in order to support "stability" runs, i.e. runs where we let the judge model evaluate the same conversation multiple times in order to check the stability of the evaluations.
+    Note that they are all lists in order to support "stability" runs, i.e. runs where we let the judge model evaluate the same conversation multiple times in order to check the instability of the evaluations.
     """
 
     conversation: Conversation
@@ -118,9 +118,9 @@ class BinaryEvaluationRunRow(BaseModel):
             return 1 if True in values else 0
 
     @property
-    def stability(self) -> float:
+    def instability(self) -> float:
         """
-        The stability of the evaluation run for the given row.
+        The instability of the evaluation run for the given row.
 
         This is defined as the standard deviation of the results.
         """
@@ -128,16 +128,16 @@ class BinaryEvaluationRunRow(BaseModel):
         return statistics.stdev(values) if len(values) > 1 else 0.0
 
 
-def _stability(
-    stabilities: list[float], method: Literal["mean", "max", "ffs"] = "mean"
+def _instability(
+    instabilities: list[float], method: Literal["mean", "max", "ffs"] = "mean"
 ) -> float:
     if method == "mean":
-        return sum(stabilities) / len(stabilities)
+        return sum(instabilities) / len(instabilities)
     elif method == "max":
-        return max(stabilities)
+        return max(instabilities)
     elif method == "ffs":
-        return sum(1 for stability in stabilities if stability == 0.0) / len(
-            stabilities
+        return sum(1 for instability in instabilities if instability == 0.0) / len(
+            instabilities
         )
 
 
@@ -157,16 +157,16 @@ class BinaryEvaluationRun(BaseModel):
         return sum(row.value for row in self.rows) / len(self)
 
     @property
-    def stability(self, method: Literal["mean", "max", "ffs"] = "mean") -> float:
+    def instability(self, method: Literal["mean", "max", "ffs"] = "mean") -> float:
         """
-        The stability of the evaluation run.
+        The instability of the evaluation run.
 
         The method argument can be one of:
-        - "mean": The mean of the stability of the rows.
-        - "max": The maximum of the stability of the rows.
+        - "mean": The mean of the instability of the rows.
+        - "max": The maximum of the instability of the rows.
         - "ffs": The fraction of fully stable rows.
         """
-        return _stability([row.stability for row in self.rows], method)
+        return _instability([row.instability for row in self.rows], method)
 
     def to_json_file(self, file_path: str, indent: int = 4) -> None:
         with open(file_path, "w") as f:
@@ -227,7 +227,7 @@ class LikertEvaluationRunRow(BaseModel):
             return max(values)
 
     @property
-    def stability(self) -> float:
+    def instability(self) -> float:
         values = [result.value for result in self.results]
         return statistics.stdev(values) if len(values) > 1 else 0.0
 
@@ -248,8 +248,8 @@ class LikertEvaluationRun(BaseModel):
         return sum(row.result for row in self.rows) / len(self)
 
     @property
-    def stability(self, method: Literal["mean", "max", "ffs"] = "mean") -> float:
-        return _stability([row.stability for row in self.rows], method)
+    def instability(self, method: Literal["mean", "max", "ffs"] = "mean") -> float:
+        return _instability([row.instability for row in self.rows], method)
 
     def to_json_file(self, file_path: str, indent: int = 4) -> None:
         with open(file_path, "w") as f:
