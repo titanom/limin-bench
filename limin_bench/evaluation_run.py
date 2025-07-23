@@ -14,6 +14,7 @@ from .base import (
     ExplainedLikertJudgement,
     LikertEvaluationRun,
     LikertEvaluationRunRow,
+    LikertEvaluationRunRowResult,
     LikertJudge,
     ModelRun,
     ModelRunRow,
@@ -38,12 +39,12 @@ async def generate_evaluation_run_row_binary(
                 system_prompt=binary_judge.system_prompt,
             )
 
-            result = BinaryEvaluationRunRowResult(
+            value = BinaryEvaluationRunRowResult(
                 judge_response=structured_response.content.explanation,
-                value=structured_response.content.result,
+                value=structured_response.content.value,
                 explanation=structured_response.content.explanation,
             )
-            results.append(result)
+            results.append(value)
         else:
             response = await generate_text_completion(
                 text,
@@ -54,10 +55,10 @@ async def generate_evaluation_run_row_binary(
             if binary_judge.response_callback is None:
                 raise ValueError("Callback is required if structured is False")
 
-            result = binary_judge.response_callback(response.content)
+            value = binary_judge.response_callback(response.content)
             results.append(BinaryEvaluationRunRowResult(
                 judge_response=response.content,
-                value=result,
+                value=value,
                 explanation=None,
             ))
 
@@ -108,50 +109,64 @@ async def generate_evaluation_run_binary(
 
 
 async def generate_evaluation_run_row_likert(
-    model_run_row: ModelRunRow, likert_judge: LikertJudge, structured: bool = False
+    model_run_row: ModelRunRow, likert_judge: LikertJudge, n_stability_runs: int = 1, structured: bool = False
 ) -> LikertEvaluationRunRow:
+    results: list[LikertEvaluationRunRowResult] = []
+
     conversation = model_run_row.content
-    text = conversation.to_markdown()
 
-    if structured:
-        structured_response = await generate_structured_completion(
-            text,
-            response_model=ExplainedLikertJudgement,
-            model_configuration=likert_judge.model_configuration,
-            system_prompt=likert_judge.system_prompt,
-        )
-        return LikertEvaluationRunRow(
-            conversation=conversation,
-            result=structured_response.content.result,
-            explanation=structured_response.content.explanation,
-            judge_response=structured_response.content.explanation,
-        )
-    else:
-        response = await generate_text_completion(
-            text,
-            model_configuration=likert_judge.model_configuration,
-            system_prompt=likert_judge.system_prompt,
-        )
+    for _ in range(n_stability_runs):
+        text = conversation.to_markdown()
 
-        if likert_judge.callback is None:
-            raise ValueError("Callback is required if structured is False")
+        if structured:
+            structured_response = await generate_structured_completion(
+                text,
+                response_model=ExplainedLikertJudgement,
+                model_configuration=likert_judge.model_configuration,
+                system_prompt=likert_judge.system_prompt,
+            )
 
-        result = likert_judge.callback(response.content)
-        return LikertEvaluationRunRow(
-            conversation=conversation,
-            result=result,
-            judge_response=response.content,
-        )
+            value = LikertEvaluationRunRowResult(
+                judge_response=structured_response.content.explanation,
+                value=structured_response.content.value,
+                explanation=structured_response.content.explanation,
+            )
+            results.append(value)
+        else:
+            response = await generate_text_completion(
+                text,
+                model_configuration=likert_judge.model_configuration,
+                system_prompt=likert_judge.system_prompt,
+            )
+
+            if likert_judge.callback is None:
+                raise ValueError("Callback is required if structured is False")
+
+            value = likert_judge.callback(response.content)
+            results.append(LikertEvaluationRunRowResult(
+                judge_response=response.content,
+                value=value,
+                explanation=None,
+            ))
+
+    return LikertEvaluationRunRow(
+        conversation=conversation,
+        results=results,
+    )
 
 
 async def generate_evaluation_run_likert(
     model_run: ModelRun,
     likert_judge: LikertJudge,
     structured: bool = False,
+    n_stability_runs: int = 1,
     n_parallel: int = 5,
     show_progress: bool = True,
 ) -> LikertEvaluationRun:
-    evaluations = []
+    if likert_judge.callback is None and not structured:
+        raise ValueError("Callback is required if structured is False")
+
+    evaluations: list[LikertEvaluationRunRow] = []
 
     if show_progress:
         progress_bar = tqdm(
@@ -163,7 +178,7 @@ async def generate_evaluation_run_likert(
 
         tasks = [
             asyncio.create_task(
-                generate_evaluation_run_row_likert(row, likert_judge, structured)
+                generate_evaluation_run_row_likert(row, likert_judge, n_stability_runs, structured)
             )
             for row in batch
         ]

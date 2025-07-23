@@ -149,15 +149,55 @@ class BinaryEvaluationRun(BaseModel):
         return iter(self.rows)
 
 
-class LikertEvaluationRunRow(BaseModel):
-    conversation: Conversation
-    result: int
+class LikertEvaluationRunRowResult(BaseModel):
+    judge_response: str
+    value: int
     explanation: str | None = None
-    judge_response: str | None = None
+
+
+class LikertEvaluationRunRow(BaseModel):
+    """
+    A LikertEvaluationRunRow represents an evaluation run over a single row of a model run.
+
+    The conversation is the conversation from the model run.
+    
+    The results represent the results of the evaluation run.
+    Note that they are a list in order to support "stability" runs, i.e. runs where we let the judge model evaluate the same conversation multiple times in order to check the stability of the evaluations.
+    """
+    conversation: Conversation
+
+    results: list[LikertEvaluationRunRowResult]
+
+    @property
+    def result(self, method: Literal["mean", "min", "max"] = "mean") -> float:
+        """
+        The result of the evaluation run.
+
+        The method argument can be one of:
+        - "mean": The mean of the results.
+        - "min": The minimum of the results.
+        - "max": The maximum of the results.
+        """
+        values = [result.value for result in self.results]
+
+        if method == "mean":
+            return sum(values) / len(values)
+        elif method == "min":
+            return min(values)
+        elif method == "max":
+            return max(values)
 
 
 class LikertEvaluationRun(BaseModel):
     rows: list[LikertEvaluationRunRow]
+
+    @property
+    def min(self) -> int:
+        return min(row.result for row in self.rows)
+
+    @property
+    def max(self) -> int:
+        return max(row.result for row in self.rows)
 
     @property
     def avg(self) -> float:
@@ -185,7 +225,7 @@ class LikertEvaluationRun(BaseModel):
 # Note that explanation should be serialized before result (so that the explanation comes first and the result second).
 class ExplainedBinaryJudgement(BaseModel):
     explanation: str
-    result: bool
+    value: bool
 
 
 class BinaryJudge(BaseModel):
@@ -197,7 +237,7 @@ class BinaryJudge(BaseModel):
 # Note that explanation should be serialized before result (so that the explanation comes first and the result second).
 class ExplainedLikertJudgement(BaseModel):
     explanation: str
-    result: int
+    value: int
 
 
 class LikertJudge(BaseModel):
