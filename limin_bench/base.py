@@ -11,6 +11,15 @@ from pydantic import BaseModel
 class Dataset(BaseModel):
     rows: list[str]
 
+    def to_json_file(self, file_path: str, indent: int = 4) -> None:
+        with open(file_path, "w") as f:
+            json.dump(self.model_dump(), f, indent=indent)
+
+    @classmethod
+    def from_json_file(cls, file_path: str) -> "Dataset":
+        with open(file_path, "r") as f:
+            return cls.model_validate(json.load(f))
+
     def __len__(self):
         return len(self.rows)
 
