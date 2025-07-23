@@ -58,11 +58,11 @@ async def generate_evaluation_run_row_binary(
             if binary_judge.response_callback is None:
                 raise ValueError("Callback is required if structured is False")
 
-            value = binary_judge.response_callback(response.content)
+            callback_value = binary_judge.response_callback(response.content)
             results.append(
                 BinaryEvaluationRunRowResult(
                     judge_response=response.content,
-                    value=value,
+                    value=callback_value,
                     explanation=None,
                 )
             )
@@ -152,11 +152,11 @@ async def generate_evaluation_run_row_likert(
             if likert_judge.callback is None:
                 raise ValueError("Callback is required if structured is False")
 
-            value = likert_judge.callback(response.content)
+            callback_value = likert_judge.callback(response.content)
             results.append(
                 LikertEvaluationRunRowResult(
                     judge_response=response.content,
-                    value=value,
+                    value=callback_value,
                     explanation=None,
                 )
             )

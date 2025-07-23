@@ -14,6 +14,8 @@ D = TypeVar("D", bound="BaseDataset")
 
 
 class BaseDataset(BaseModel, ABC, Generic[T]):
+    rows: list[T]
+
     def to_json_file(self, file_path: str, indent: int = 4) -> None:
         with open(file_path, "w") as f:
             json.dump(self.model_dump(), f, indent=indent)
@@ -29,7 +31,7 @@ class BaseDataset(BaseModel, ABC, Generic[T]):
     def __getitem__(self, index: int) -> T:
         return self.rows[index]
 
-    def __iter__(self) -> Iterable[T]:
+    def __iter__(self):
         return iter(self.rows)
 
 
@@ -99,7 +101,7 @@ class BinaryEvaluationRunRow(BaseModel):
     results: list[BinaryEvaluationRunRowResult]
 
     @property
-    def value(self, method: Literal["mean", "min", "max"] = "mean") -> int:
+    def value(self, method: Literal["mean", "min", "max"] = "mean") -> float:
         """
         The result of the evaluation run for the given row.
 
@@ -108,14 +110,14 @@ class BinaryEvaluationRunRow(BaseModel):
         - "min": The minimum of the results (either 0 if there is a False result or 1 if all results are True).
         - "max": The maximum of the results (either 1 if there is a True result or 0 if all results are False).
         """
-        values = [result.value for result in self.results]
+        values = [int(result.value) for result in self.results]
 
         if method == "mean":
             return sum(values) / len(values)
         elif method == "min":
-            return 0 if False in values else 1
+            return min(values)
         elif method == "max":
-            return 1 if True in values else 0
+            return max(values)
 
     @property
     def instability(self) -> float:
@@ -236,11 +238,11 @@ class LikertEvaluationRun(BaseModel):
     rows: list[LikertEvaluationRunRow]
 
     @property
-    def min(self) -> int:
+    def min(self) -> float:
         return min(row.result for row in self.rows)
 
     @property
-    def max(self) -> int:
+    def max(self) -> float:
         return max(row.result for row in self.rows)
 
     @property
