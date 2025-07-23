@@ -13,11 +13,6 @@ D = TypeVar("D", bound="BaseDataset")
 
 
 class BaseDataset(BaseModel, ABC, Generic[T]):
-    @property
-    @abstractmethod
-    def rows(self) -> list[T]:
-        pass
-
     def to_json_file(self, file_path: str, indent: int = 4) -> None:
         with open(file_path, "w") as f:
             json.dump(self.model_dump(), f, indent=indent)
@@ -37,7 +32,7 @@ class BaseDataset(BaseModel, ABC, Generic[T]):
         return iter(self.rows)
 
 
-class PregeneratedMultiTurnDataset(BaseDataset):
+class PregeneratedMultiTurnDataset(BaseDataset[list[str]]):
     """
     A pregenerated multi-turn dataset is a list of rows, where every row is a list of strings indicating the pregenerated user messages to use during the multi-turn evaluation.
     """
@@ -45,7 +40,7 @@ class PregeneratedMultiTurnDataset(BaseDataset):
     rows: list[list[str]]
 
 
-class Dataset(BaseDataset):
+class Dataset(BaseDataset[str]):
     """
     A dataset is a list of rows, where every row is a single string indicating the user message.
 

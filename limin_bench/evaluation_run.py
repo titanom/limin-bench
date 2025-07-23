@@ -23,12 +23,11 @@ from .base import (
 async def generate_evaluation_run_row_binary(
     model_run_row: ModelRunRow, binary_judge: BinaryJudge, n_stability_runs: int = 1, structured: bool = False
 ) -> BinaryEvaluationRunRow:
-    evaluation_run_rows: list[BinaryEvaluationRunRow] = []
+    results: list[BinaryEvaluationRunRowResult] = []
+
+    conversation = model_run_row.content
 
     for _ in range(n_stability_runs):
-        results: list[BinaryEvaluationRunRowResult] = []
-
-        conversation = model_run_row.content
         text = conversation.to_markdown()
 
         if structured:
@@ -62,25 +61,24 @@ async def generate_evaluation_run_row_binary(
                 explanation=None,
             ))
 
-        evaluation_run_rows.append(BinaryEvaluationRunRow(
-            conversation=conversation,
-            results=results,
-        ))
-
-    return evaluation_run_rows
+    return BinaryEvaluationRunRow(
+        conversation=conversation,
+        results=results,
+    )
 
 
 async def generate_evaluation_run_binary(
     model_run: ModelRun,
     binary_judge: BinaryJudge,
     structured: bool = False,
+    n_stability_runs: int = 1,
     n_parallel: int = 5,
     show_progress: bool = True,
 ) -> BinaryEvaluationRun:
     if binary_judge.response_callback is None and not structured:
         raise ValueError("Callback is required if structured is False")
 
-    evaluations = []
+    evaluations: list[BinaryEvaluationRunRow] = []
 
     if show_progress:
         progress_bar = tqdm(
@@ -92,7 +90,7 @@ async def generate_evaluation_run_binary(
 
         tasks = [
             asyncio.create_task(
-                generate_evaluation_run_row_binary(row, binary_judge, structured)
+                generate_evaluation_run_row_binary(row, binary_judge, n_stability_runs, structured)
             )
             for row in batch
         ]
