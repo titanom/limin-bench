@@ -42,7 +42,7 @@ async def main():
     )
 
     print(evaluation_run.model_dump_json())
-    evaluation_run.to_json_file("evaluation_run.json")
+    print("Instability:", evaluation_run.instability)
 
 
 if __name__ == "__main__":
