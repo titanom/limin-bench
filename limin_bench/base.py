@@ -187,14 +187,14 @@ class ModelRun(BaseModel):
     def __iter__(self):
         return iter(self.rows)
 
-    def to_markdown_table(self, max_trunc: int = 50) -> str:
+    def to_markdown_table(self, max_column_length: int = 50) -> str:
         """
         Returns a markdown table representation of the model run.
         Each row shows the row number, turn, role, and message content.
         """
         if not self.rows:
             return dict_to_markdown_table(
-                {"Row": [], "Turn": [], "Role": [], "Message": []}, max_trunc
+                {"Row": [], "Turn": [], "Role": [], "Message": []}, max_column_length
             )
 
         # Collect all data
@@ -235,7 +235,7 @@ class ModelRun(BaseModel):
             "Message": message_values,
         }
 
-        return dict_to_markdown_table(data, max_trunc)
+        return dict_to_markdown_table(data, max_column_length)  # type: ignore
 
 
 class BinaryEvaluationRunRowResult(BaseModel):
@@ -344,7 +344,7 @@ class BinaryEvaluationRun(BaseModel):
     def __iter__(self):
         return iter(self.rows)
 
-    def to_markdown_table(self, max_trunc: int = 50) -> str:
+    def to_markdown_table(self, max_column_length: int = 50) -> str:
         """
         Returns a markdown table representation of the Binary evaluation run.
         Each row shows the row number, turn, role, message content, evaluation explanation, evaluation value, and instability.
@@ -361,7 +361,7 @@ class BinaryEvaluationRun(BaseModel):
                     "Value": [],
                     "Instability": [],
                 },
-                max_trunc,
+                max_column_length,
             )
 
         row_values = []
@@ -419,7 +419,7 @@ class BinaryEvaluationRun(BaseModel):
             "Instability": instability_values,
         }
 
-        return dict_to_markdown_table(data, max_trunc)
+        return dict_to_markdown_table(data, max_column_length)  # type: ignore
 
 
 class LikertEvaluationRunRowResult(BaseModel):
@@ -502,7 +502,7 @@ class LikertEvaluationRun(BaseModel):
     def __iter__(self):
         return iter(self.rows)
 
-    def to_markdown_table(self, max_trunc: int = 50) -> str:
+    def to_markdown_table(self, max_column_length: int = 50) -> str:
         """
         Returns a markdown table representation of the Likert evaluation run.
         Each row shows the row number, turn, role, message content, evaluation explanation, evaluation score, and stability.
@@ -519,7 +519,7 @@ class LikertEvaluationRun(BaseModel):
                     "Score": [],
                     "Instability": [],
                 },
-                max_trunc,
+                max_column_length,
             )
 
         row_values = []
@@ -561,7 +561,9 @@ class LikertEvaluationRun(BaseModel):
                         evaluation_run_row.results[0].explanation or ""
                     )
                     score_values.append(str(round(evaluation_run_row.value(), 2)))
-                    instability_values.append(str(round(evaluation_run_row.instability, 2)))
+                    instability_values.append(
+                        str(round(evaluation_run_row.instability, 2))
+                    )
                 else:
                     explanation_values.append("")
                     score_values.append("")
@@ -577,7 +579,7 @@ class LikertEvaluationRun(BaseModel):
             "Instability": instability_values,
         }
 
-        return dict_to_markdown_table(data, max_trunc)
+        return dict_to_markdown_table(data, max_column_length)  # type: ignore
 
 
 # Note that explanation should be serialized before result (so that the explanation comes first and the result second).
