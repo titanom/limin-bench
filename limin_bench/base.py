@@ -239,7 +239,6 @@ class ModelRun(BaseModel):
 
 
 class BinaryEvaluationRunRowResult(BaseModel):
-    judge_response: str
     value: bool
     explanation: str | None = None
 
