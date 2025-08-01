@@ -66,7 +66,6 @@ async def generate_evaluation_run_row_binary(
             )
 
     return BinaryEvaluationRunRow(
-        conversation=conversation,
         results=results,
     )
 

@@ -247,13 +247,9 @@ class BinaryEvaluationRunRow(BaseModel):
     """
     A BinaryEvaluationRunRow represents an evaluation run over a single row of a model run.
 
-    The conversation is the conversation from the model run.
-
     The judge_responses, results, and explanations represent the results of the evaluation run.
     Note that they are all lists in order to support "stability" runs, i.e. runs where we let the judge model evaluate the same conversation multiple times in order to check the instability of the evaluations.
     """
-
-    conversation: Conversation
 
     results: list[BinaryEvaluationRunRowResult]
 
@@ -343,7 +339,9 @@ class BinaryEvaluationRun(BaseModel):
     def __iter__(self):
         return iter(self.rows)
 
-    def to_markdown_table(self, max_column_length: int = 50) -> str:
+    def to_markdown_table(
+        self, max_column_length: int = 50, model_run: ModelRun | None = None
+    ) -> str:
         """
         Returns a markdown table representation of the Binary evaluation run.
         Each row shows the row number, turn, role, message content, evaluation explanation, evaluation value, and instability.
@@ -371,8 +369,10 @@ class BinaryEvaluationRun(BaseModel):
         value_values = []
         instability_values = []
 
-        for row_idx, evaluation_run_row in enumerate(self.rows):
-            conversation = evaluation_run_row.conversation
+        for row_idx, (evaluation_run_row, model_run_row) in enumerate(
+            zip(self.rows, model_run.rows)
+        ):
+            conversation = model_run_row.conversation
             current_turn = 0
 
             for message_idx, message in enumerate(conversation.messages):
