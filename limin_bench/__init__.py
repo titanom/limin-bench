@@ -1,3 +1,11 @@
+from .application_run import (
+    ApplicationDataset,
+    ApplicationRun,
+    ApplicationRunRow,
+    ApplicationJudge,
+    generate_application_run,
+    generate_application_evaluation_run,
+)
 from .base import (
     Dataset,
     PregeneratedMultiTurnDataset,
@@ -25,6 +33,13 @@ from .model_run import (
 )
 
 __all__ = [
+    # From application_run
+    "ApplicationDataset",
+    "ApplicationRun",
+    "ApplicationRunRow",
+    "ApplicationJudge",
+    "generate_application_run",
+    "generate_application_evaluation_run",
     # From base
     "Dataset",
     "PregeneratedMultiTurnDataset",
@@ -49,3 +64,5 @@ __all__ = [
     "generate_multi_turn_model_run_row_from_pregenerated_dataset",
     "generate_multi_turn_model_run_from_pregenerated_dataset",
 ]
+
+__version__ = "0.3.0"
