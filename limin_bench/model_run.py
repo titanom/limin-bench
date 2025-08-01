@@ -2,7 +2,9 @@ import asyncio
 
 from limin import (
     Conversation,
-    Message,
+    SystemMessage,
+    UserMessage,
+    AssistantMessage,
     ModelConfiguration,
     generate_text_completion,
     generate_text_completion_for_conversation,
@@ -143,19 +145,17 @@ async def generate_multi_turn_model_run_row_from_pregenerated_dataset(
     assistant_model_configuration: ModelConfiguration,
 ) -> ModelRunRow:
     conversation = Conversation(
-        messages=[Message(role="system", content=assistant_system_prompt)]
+        messages=[SystemMessage(content=assistant_system_prompt)]
     )
 
     for user_message in pregenerated_user_messages:
-        conversation.add_message(Message(role="user", content=user_message))
+        conversation.add_message(UserMessage(content=user_message))
 
         assistant_message = await generate_text_completion_for_conversation(
             conversation, assistant_model_configuration
         )
 
-        conversation.add_message(
-            Message(role="assistant", content=assistant_message.content)
-        )
+        conversation.add_message(AssistantMessage(content=assistant_message.content))
 
     return ModelRunRow(content=conversation)
 

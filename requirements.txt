@@ -1,2 +1,2 @@
-limin>=0.8.0
+limin>=0.9.1
 limin-talk>=0.2.0

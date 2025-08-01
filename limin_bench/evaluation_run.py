@@ -43,7 +43,6 @@ async def generate_evaluation_run_row_binary(
             )
 
             value = BinaryEvaluationRunRowResult(
-                judge_response=structured_response.content.explanation,
                 value=structured_response.content.value,
                 explanation=structured_response.content.explanation,
             )
@@ -61,14 +60,12 @@ async def generate_evaluation_run_row_binary(
             callback_value = binary_judge.response_callback(response.content)
             results.append(
                 BinaryEvaluationRunRowResult(
-                    judge_response=response.content,
                     value=callback_value,
-                    explanation=None,
+                    explanation=response.content,
                 )
             )
 
     return BinaryEvaluationRunRow(
-        conversation=conversation,
         results=results,
     )
 
