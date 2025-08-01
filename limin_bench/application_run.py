@@ -1,5 +1,5 @@
 import asyncio
-from typing import Callable, TypeVar, Awaitable, Any
+from typing import Callable, TypeVar, Any, Coroutine
 from pydantic import BaseModel
 
 from .base import (
@@ -14,7 +14,7 @@ Output = TypeVar("Output")
 
 
 class ApplicationConfiguration:
-    def __init__(self, exec_fn: Callable[[Input], Awaitable[Output]]):
+    def __init__(self, exec_fn: Callable[..., Coroutine[Any, Any, Output]]):
         self.exec_fn = exec_fn
 
 
@@ -24,7 +24,7 @@ class ApplicationDataset:
 
 
 class ApplicationRunRow:
-    def __init__(self, input: Input, output: Output):
+    def __init__(self, input: dict[str, Any], output: Any):
         self.input = input
         self.output = output
 
@@ -58,7 +58,7 @@ async def generate_application_run(
     for i in range(0, len(dataset.rows), n_parallel):
         dataset_batch = dataset.rows[i : i + n_parallel]
 
-        tasks = [
+        tasks: list[asyncio.Task[Any]] = [
             asyncio.create_task(configuration.exec_fn(**row)) for row in dataset_batch
         ]
 
@@ -83,7 +83,10 @@ class ApplicationJudgeResult(BaseModel):
 
 class ApplicationJudge:
     def __init__(
-        self, callback: Callable[[Input, Awaitable[Output]], ApplicationJudgeResult]
+        self,
+        callback: Callable[
+            [dict[str, Any], Any], Coroutine[Any, Any, ApplicationJudgeResult]
+        ],
     ):
         self.callback = callback
 
@@ -107,7 +110,7 @@ async def generate_application_evaluation_run(
     for i in range(0, len(application_run.rows), n_parallel):
         batch = application_run.rows[i : i + n_parallel]
 
-        tasks = [
+        tasks: list[asyncio.Task[ApplicationJudgeResult]] = [
             asyncio.create_task(application_judge.callback(row.input, row.output))
             for row in batch
         ]
