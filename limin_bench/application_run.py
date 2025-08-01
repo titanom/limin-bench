@@ -1,5 +1,5 @@
 import asyncio
-from typing import Callable, TypeVar, Awaitable
+from typing import Callable, TypeVar, Awaitable, Any
 from pydantic import BaseModel
 
 from .base import (
@@ -9,7 +9,7 @@ from .base import (
 )
 
 
-Input = TypeVar("Input")
+Input = TypeVar("Input", bound=dict[str, Any])
 Output = TypeVar("Output")
 
 
