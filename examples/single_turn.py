@@ -49,7 +49,7 @@ async def main():
     )
 
     print("Full evaluation run:")
-    print(evaluation_run.to_markdown_table())
+    print(evaluation_run.to_markdown_table(model_run=model_run))
     print("Accuracy:")
     print(evaluation_run.accuracy)
 

@@ -58,7 +58,7 @@ async def main():
     print(model_run_from_json.to_markdown_table())
 
     print("Deserialized evaluation run:")
-    print(evaluation_run_from_json.to_markdown_table())
+    print(evaluation_run_from_json.to_markdown_table(model_run=model_run_from_json))
 
 
 if __name__ == "__main__":
