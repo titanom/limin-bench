@@ -594,6 +594,7 @@ class BinaryJudge(BaseModel):
     model_configuration: ModelConfiguration
     system_prompt: str
     response_callback: Callable[[str], bool] | None = None
+    name: str | None = None
 
 
 # Note that explanation should be serialized before result (so that the explanation comes first and the result second).

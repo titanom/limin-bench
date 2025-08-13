@@ -65,4 +65,4 @@ __all__ = [
     "generate_multi_turn_model_run_from_pregenerated_dataset",
 ]
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
